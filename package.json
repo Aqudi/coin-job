@@ -1,0 +1,24 @@
+{
+  "name": "coin-job",
+  "version": "1.0.0",
+  "description": "Ethereum smart contract를 활용한 아르바이트 DAPP",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Aqudi/coin-job.git"
+  },
+  "keywords": [
+    "blockchain",
+    "ehtereum"
+  ],
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/Aqudi/coin-job/issues"
+  },
+  "homepage": "https://github.com/Aqudi/coin-job#readme",
+  "dependencies": {
+    "web3": "^1.3.6"
+  }
+}
