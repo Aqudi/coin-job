@@ -99,6 +99,7 @@ contract Coinjob {
     function finishJob(uint _number) public {
         Job storage _thisjob = job[_number];
         require(_thisjob.stat == status.workerDone, "Worker doesn't finised job");
+        require(msg.sender == _thisjob.writer, "Only Writer can finish the job");
         _thisjob.stat = status.finish;
         payable(_thisjob.accepter).transfer(_thisjob.reward);
     }
