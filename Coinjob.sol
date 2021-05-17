@@ -2,7 +2,7 @@ pragma solidity >=0.8.0 <0.9.0;
 pragma experimental ABIEncoderV2;
 contract Coinjob {
     
-    enum status { open, finish, workerDone, bossDone}
+    enum status { open, finish, workerDone}
     // open = 구인중 
     // finish = 일의 종료 
     // workerDone = 수락자가 일을 끝내고 대기중 
@@ -27,6 +27,9 @@ contract Coinjob {
     Job[] public job;
     
     uint public postContract = 0.05 ether;
+    // uint public DoNotDisturb = 0.00005 ether;
+    
+    uint Coinjob_ether = 0;
     
     address public owner;
     
@@ -41,8 +44,15 @@ contract Coinjob {
     }
 
     
+    function viewBalance() view onlyOwner public returns (uint256 b,uint256 o){
+        b = address(this).balance;
+        o = owner.balance;
+    }
+    
+    
     function publishJob(string memory _title, string memory _content,uint _dontdisturb, uint _deadline) payable public { // dontdisturb 단위는 ether
         require(msg.value >= postContract, "Job Reward is too cheap");
+        // require(_dontdisturb >= DoNotDisturb, "DoNotDisturb");
         uint deadline = block.timestamp + _deadline; 
         Job memory newJob = Job(job.length, msg.sender, _title, _content, deadline, msg.value,_dontdisturb,false, msg.sender,"", status.open);
         job.push(newJob);
@@ -65,7 +75,7 @@ contract Coinjob {
         require(_number < job.length && _number >= 0, "You Are Looking For A Wrong Job");
         Job storage _thisjob = job[_number];
         require(msg.sender != _thisjob.writer, "You Can't Co-Work with Yourself");
-        require(_thisjob.stat == status.finish, "This Job is Done. Job Good Job Bad Job");
+        require(_thisjob.stat != status.finish, "This Job is Done. Job Good Job Bad Job");
         require(!_thisjob.accepted, "Job In Progress");
         require(msg.value >= _thisjob.dontdisturb, "You Should Pay to show you are not scammer ( your money will payback after job is done )");
         _thisjob.accepter = msg.sender;
@@ -78,7 +88,12 @@ contract Coinjob {
     }
     
     function workDone(uint _number) public {
-        // 수락자가 일을 끝냈다고 알림
+        require(_number < job.length && _number >= 0, "You Are Looking For A Wrong Job");
+        Job storage _thisjob = job[_number];
+        require(msg.sender != _thisjob.accepter, "You Are Not the Member of Job. Please Check your Wallet Address");
+        require(_thisjob.stat != status.finish, "This Job is Done. Job Good Job Bad Job");
+        
+        _thisjob.stat = status.workerDone;
     }
     
     function finishJob(uint _number) public {
@@ -88,8 +103,8 @@ contract Coinjob {
     function giveupJob(uint _number) public {
         require(_number < job.length && _number >= 0, "You Are Looking For A Wrong Job");
         Job storage _thisjob = job[_number];
-        require(msg.sender == _thisjob.accepter, "You Are Not Job Worker. Please Check your Wallet Address");
-        require(_thisjob.stat )
+        require(msg.sender == _thisjob.accepter, "You Are Not the Member of Job. Please Check your Wallet Address");
+        require(_thisjob.stat != status.finish, "This Job is Done. Job Good Job Bad Job");
         if (msg.sender == _thisjob.writer){
             require(!_thisjob.accepted, "You Can not Close Your Job while Someone is Working for you");
             _thisjob.stat = status.finish;
