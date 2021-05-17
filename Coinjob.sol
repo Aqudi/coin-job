@@ -77,7 +77,7 @@ contract Coinjob {
         require(msg.sender != _thisjob.writer, "You Can't Co-Work with Yourself");
         require(_thisjob.stat != status.finish, "This Job is Done. Job Good Job Bad Job");
         require(!_thisjob.accepted, "Job In Progress");
-        require(msg.value >= _thisjob.dontdisturb, "You Should Pay to show you are not scammer ( your money will payback after job is done )");
+        require(msg.value == _thisjob.dontdisturb, "You Should Pay to show you are not scammer ( your money will payback after job is done )");
         _thisjob.accepter = msg.sender;
         _thisjob.accepted = true;
         _thisjob.contact = _contact;
@@ -92,16 +92,15 @@ contract Coinjob {
         Job storage _thisjob = job[_number];
         require(msg.sender == _thisjob.accepter, "You Are Not the Member of Job. Please Check your Wallet Address");
         require(_thisjob.stat != status.finish, "This Job is Done. Job Good Job Bad Job");
-        
         _thisjob.stat = status.workerDone;
     }
     
     function finishJob(uint _number) public {
         Job storage _thisjob = job[_number];
-        require(_thisjob.stat == status.workerDone, "Worker doesn't finised job");
+        require(_thisjob.stat == status.workerDone, "Worker doesn't finised job or Already finished job");
         require(msg.sender == _thisjob.writer, "Only Writer can finish the job");
         _thisjob.stat = status.finish;
-        payable(_thisjob.accepter).transfer(_thisjob.reward);
+        payable(_thisjob.accepter).transfer(_thisjob.reward + _thisjob.dontdisturb);
     }
 
     function giveupJob(uint _number) public {
@@ -151,4 +150,5 @@ contract Coinjob {
         
         return _jobs;
     }
+
 }
