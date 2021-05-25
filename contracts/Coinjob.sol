@@ -26,10 +26,21 @@ contract Coinjob {
     
     Job[] public job;
     
+    
+    event jobRefresh();
+    
+    
+    //
     uint public postContract = 0.05 ether;
-    // uint public DoNotDisturb = 0.00005 ether;
+    uint public DoNotDisturb = 0.01 ether;
+    // 계약의 최소비용을 잘 조절해야 한다.
+    // 계약 파기 등으로 우리가 돈을 반환할 때 손해를 볼 수 있기 때문.
+    // 수수료 비율 또한 잘 조절해야 한다.
+    //
     
     uint Coinjob_ether = 0;
+    uint public fee_numerator = 10;
+    uint public fee_denominator = 100;
     
     address public owner;
     
@@ -42,35 +53,46 @@ contract Coinjob {
     constructor(){
         owner = msg.sender;
     }
+    
+    function adjustPostContract(uint value) onlyOwner public{
+        postContract = value;
+    }
+    
+    function adjustDoNotDisturb(uint value) onlyOwner public{
+        DoNotDisturb = value;
+    }
 
+    function adjustFee(uint numerator, uint denominator) onlyOwner public{
+        fee_numerator = numerator;
+        fee_denominator = denominator;
+    }
     
     function viewBalance() view onlyOwner public returns (uint256 b,uint256 o){
         b = address(this).balance;
         o = owner.balance;
     }
     
+    function ownerMoney(uint value) onlyOwner public{
+        payable(owner).transfer(value);
+    }
+    
+    function paying(address addr, uint value) private{
+        payable(addr).transfer(value * (fee_denominator - fee_numerator) / fee_denominator);
+    } 
     
     function publishJob(string memory _title, string memory _content,uint _dontdisturb, uint _deadline) payable public { // dontdisturb 단위는 ether
         require(msg.value >= postContract, "Job Reward is too cheap");
-        // require(_dontdisturb >= DoNotDisturb, "DoNotDisturb");
-        uint deadline = block.timestamp + _deadline; 
+        require(_dontdisturb >= DoNotDisturb, "DoNotDisturb is too cheap");
+        uint deadline = block.timestamp + _deadline;
         Job memory newJob = Job(job.length, msg.sender, _title, _content, deadline, msg.value,_dontdisturb,false, msg.sender,"", status.open);
         job.push(newJob);
+        emit jobRefresh();
     }
     
     function allJob() public view returns (Job[] memory){
         return job;
     }
     
-    // function getJob(uint _number) public view returns(address writer, string memory title, string memory content, uint deadline, uint reward){
-    //     require(_number < job.length && _number >= 0, "You Are Looking For A Wrong Job");
-    //     writer = job[_number].writer;
-    //     title = job[_number].title;
-    //     content = job[_number].content;
-    //     deadline = job[_number].deadline;
-    //     reward = job[_number].reward;
-    // }
-
     function acceptJob(uint _number, string memory _contact) payable public {
         require(_number < job.length && _number >= 0, "You Are Looking For A Wrong Job");
         Job storage _thisjob = job[_number];
@@ -81,10 +103,7 @@ contract Coinjob {
         _thisjob.accepter = msg.sender;
         _thisjob.accepted = true;
         _thisjob.contact = _contact;
-    }
-    
-    function rescissionJob(uint _number) public {
-        // 계약을 상호합의 합에 폐지
+        emit jobRefresh();
     }
     
     function workDone(uint _number) public {
@@ -93,6 +112,7 @@ contract Coinjob {
         require(msg.sender == _thisjob.accepter, "You Are Not the Member of Job. Please Check your Wallet Address");
         require(_thisjob.stat != status.finish, "This Job is Done. Job Good Job Bad Job");
         _thisjob.stat = status.workerDone;
+        emit jobRefresh();
     }
     
     function finishJob(uint _number) public {
@@ -100,7 +120,8 @@ contract Coinjob {
         require(_thisjob.stat == status.workerDone, "Worker doesn't finised job or Already finished job");
         require(msg.sender == _thisjob.writer, "Only Writer can finish the job");
         _thisjob.stat = status.finish;
-        payable(_thisjob.accepter).transfer(_thisjob.reward + _thisjob.dontdisturb);
+        paying(_thisjob.accepter, (_thisjob.reward + _thisjob.dontdisturb));
+        emit jobRefresh();
     }
 
     function giveupJob(uint _number) public {
@@ -111,18 +132,19 @@ contract Coinjob {
         if (msg.sender == _thisjob.writer){
             require(!_thisjob.accepted, "You Can not Close Your Job while Someone is Working for you");
             _thisjob.stat = status.finish;
-            payable(_thisjob.writer).transfer(_thisjob.reward);
+            paying(_thisjob.writer ,_thisjob.reward);
         }
         else{
             require(_thisjob.accepted, "Job Is Not Started. So There is no way to give up");
             _thisjob.accepted = false;
             _thisjob.contact = "";
-            payable(_thisjob.accepter).transfer(_thisjob.dontdisturb);
+            paying(_thisjob.accepter,_thisjob.dontdisturb);
             _thisjob.accepter = _thisjob.writer;
         }
+        jobRefresh();
     }
 
-    function getPaginatedSquares( uint256 _page, uint256 _resultsPerPage  )  public  view   returns (Job[] memory)
+    function getPaginatedSquares( uint256 _page, uint256 _resultsPerPage  )  public  view returns (Job[] memory)
     {
         uint256 _jobIndex = _resultsPerPage * _page - _resultsPerPage;
         
