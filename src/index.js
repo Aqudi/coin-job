@@ -14,9 +14,13 @@ const App = {
     web3Provider: null,
     contracts: {},
     account: '0x0',
+    renderAllJob: null,
+    perPage: 10,
 
-    init: function () {
+    init: function (renderCallback, perPage) {
         console.log("Init app")
+        App.renderAllJob = renderCallback;
+        App.perPage = perPage;
         return App.initWeb3();
     },
 
@@ -38,11 +42,35 @@ const App = {
         console.log("Function initContract")
         App.contracts.Coinjob = contract(contractJson);
         App.contracts.Coinjob.setProvider(App.web3Provider);
-        App.render();
+        App.login();
+        App.refreshJob();
     },
 
-    render: function () {
-        console.log("Function render")
+    refreshJob: function () {
+        console.log("Function allJob")
+
+        // Load contract data
+        return App.contracts.Coinjob.deployed().then(function (instance) {
+            const event = instance.jobRefresh(function (error, event) {
+                console.log("Event: Refresh Job", event);
+                if (error) {
+                    App.noticeError(err);
+                }
+                App.allJob(1, 10).then((jobList) => {
+                    App.renderAllJob(1, App.perPage);
+                    App._loaded();
+                });
+            });
+        }).catch(App.noticeError);
+    },
+
+    noticeError: function (err) {
+        console.error(err);
+        alert(err);
+    },
+
+    login: function () {
+        console.log("Function login")
 
         App._loading();
         // Load account data
@@ -53,16 +81,20 @@ const App = {
             }
             App._loaded();
             $("#pageId").html(pagenum);
-            renderAllJob(pagenum,viewperpage);
+            renderAllJob(pagenum, viewperpage);
         });
-
     },
 
-    allJob: function (page = -1, perPage = 10) {
+    allJob: function (page = -1, perPage = null) {
         console.log("Function allJob")
         let CoinjobInstance;
 
         App._loading();
+
+        // 앱에 설정된 페이지가 있다면 그 수를 따름.
+        if (perPage == null) {
+            perPage = App.perPage;
+        }
 
         // Load contract data
         return App.contracts.Coinjob.deployed().then(function (instance) {
@@ -77,13 +109,10 @@ const App = {
             console.log("Job list", jobList);
             App._loaded();
             return jobList;
-        }).catch(function (error) {
-            console.error(error);
-            throw error;
-        });
+        }).catch(App.noticeError);
     },
 
-    publishJob: function (title, contet, dontdisturb, deadline) {
+    publishJob: function (title, contet, dontdisturb, deadline, reward = "0.5") {
         console.log("Function publishJob")
         let CoinjobInstance;
 
@@ -94,85 +123,62 @@ const App = {
             return CoinjobInstance.publishJob(title, contet, dontdisturb, deadline,
                 {
                     from: App.account,
-                    value: web3.utils.toWei("0.5", "ether")
+                    value: web3.utils.toWei(String(reward), "ether")
                 }
             );
         }).then(function (job) {
             console.log("Job", job);
             App._loaded();
-            renderAllJob(pagenum,viewperpage);
+            renderAllJob(pagenum, viewperpage);
             return job;
-        }).catch(function (error) {
-            console.error(error);
-            throw error;
-        });
+        }).catch(App.noticeError);
     },
 
-    acceptJob: function (_number, _contact) {
-        console.log("Function acceptJob");
+    acceptJob: function (number, contact, fee) {
+        console.log("Function acceptJob")
         let CoinjobInstance;
 
         App._loading();
 
         return App.contracts.Coinjob.deployed().then(async function (instance) {
             CoinjobInstance = instance;
-            return CoinjobInstance.acceptJob(_number,{
-                from: App.account});
+            return CoinjobInstance.acceptJob(number, contact,
+                {
+                    from: App.account,
+                    value: web3.utils.toWei(String(fee), "ether")
+                }
+            );
         }).then(function (job) {
             console.log("Job", job);
             App._loaded();
-            renderAllJob(pagenum,viewperpage);
             return job;
-        }).catch(function (error) {
-            console.error(error);
-            throw error;
-        });
+        }).catch(App.noticeError);
     },
 
-    workDone: function (_number) {
-
-        console.log("Function workDone");
+    workDone: function (number) {
+        console.log("Function workDone")
         let CoinjobInstance;
 
         App._loading();
 
         return App.contracts.Coinjob.deployed().then(async function (instance) {
             CoinjobInstance = instance;
-            return CoinjobInstance.workDone(_number,{
-                from: App.account});
-        }).then(function (job) {
-            console.log("Job", job);
-            App._loaded();
-            renderAllJob(pagenum,viewperpage);
-            return job;
-        }).catch(function (error) {
-            console.error(error);
-            throw error;
-        });
+            return CoinjobInstance.workDone(number);
+        }).catch(App.noticeError);
     },
 
-    finishJob: function (_number) {
-
-        console.log("Function finishJob");
+    finishJob: function (number) {
+        console.log("Function finishJob")
         let CoinjobInstance;
 
         App._loading();
 
         return App.contracts.Coinjob.deployed().then(async function (instance) {
             CoinjobInstance = instance;
-            return CoinjobInstance.finishJob(_number,{
-                from: App.account});
-        }).then(function (job) {
-            console.log("Job", job);
-            App._loaded();
-            renderAllJob(pagenum,viewperpage);
-            return job;
-        }).catch(function (error) {
-            console.error(error);
-            throw error;
-        });
+            return CoinjobInstance.finishJob(number, contact);
+        }).catch(App.noticeError);
     },
-
+  
     giveupJob: function (_number) {
 
         console.log("Function giveupJob");
