@@ -57,7 +57,7 @@ const App = {
                     App.noticeError(err);
                 }
                 App.allJob(1, 10).then((jobList) => {
-                    App.renderAllJob(jobList);
+                    App.renderAllJob(1, App.perPage);
                     App._loaded();
                 });
             });
@@ -81,7 +81,7 @@ const App = {
             }
             App._loaded();
             $("#pageId").html(pagenum);
-            renderAllJob(pagenum,viewperpage);
+            renderAllJob(pagenum, viewperpage);
         });
     },
 
@@ -129,7 +129,7 @@ const App = {
         }).then(function (job) {
             console.log("Job", job);
             App._loaded();
-            renderAllJob(pagenum,viewperpage);
+            renderAllJob(pagenum, viewperpage);
             return job;
         }).catch(App.noticeError);
     },
