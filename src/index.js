@@ -57,7 +57,7 @@ const App = {
                     App.noticeError(err);
                 }
                 App.allJob(1, 10).then((jobList) => {
-                    App.renderAllJob(1, App.perPage);
+                    App.renderAllJob(pagenum, App.perPage);
                     App._loaded();
                 });
             });

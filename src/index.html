@@ -122,7 +122,7 @@
         // $(function () {
         $(window).on("load", function () {
             console.log("Window 로드 완료")
-            app.init(renderAllJob, 8);
+            app.init(renderAllJob, 5);
         });
         // });
 
@@ -143,11 +143,11 @@
         });
 
         document.getElementById("btn-publish").addEventListener("click", async function () {
-            const title = "Hello";
-            const jobContent = "I want you.";
-            const dontdisturb = web3.utils.toWei("1", "ether");
+            const title = $("input#title").val();
+            const jobContent = $("#content").val();
+            const dontdisturb = web3.utils.toWei($("#dontdisturb").val(), "ether");
             const deadline = Date.now();
-            const reward = Math.random() * 100 % 2 + 0.5
+            const reward = Number($("#reward").val())
             console.log("Publish job", title, jobContent, dontdisturb, deadline, reward);
             let job = await app.publishJob(title, jobContent, dontdisturb, deadline, reward);
         });
@@ -202,9 +202,9 @@
                 $('#result tr:last').append("<td>"+accepted+'</td>');
                 $('#result tr:last').append("<td>"+stat+'</td>');
                 if(stat != 1){
-                    let name = "";
+                    let name = "none";
                     if(stat == 0){
-                        if(my_position == 2){
+                        if(my_position == 2 && !accepted){
                             name="giveup";
                         }
                         else if(my_position == 1){
@@ -225,6 +225,9 @@
                         }
                         else if(my_position == 2){
                             name="finish";
+                        }
+                        else{
+                            name="none";
                         }
                     }
                     if(name != "none"){
