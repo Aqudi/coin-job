@@ -18,7 +18,13 @@
             <div class="col-lg-12">
                 <h1 class="text-center">Coin Job</h1>
                 <hr />
+                <p id="accountAddress" class="text-center"></p>
+
                 <br />
+                <div class="py-2 text-center">
+                    <h2>Job List</h2>
+                    <p class="lead">Are you looking for something to do?</p>
+                </div>
                 <div id="loader">
                     <p class="text-center">Loading...</p>
                 </div>
@@ -38,14 +44,55 @@
                         <tbody id="result">
                         </tbody>
                     </table>
-                    <hr />
-                    <p id="accountAddress" class="text-center"></p>
+                </div>
+            </div>
+            <hr>
+            <div class="col-lg-12">
+
+                <div class="py-2 text-center">
+                    <h2>Make Job</h2>
+                    <p class="lead">Are you looking for someone to work for?</p>
+                </div>
+                <div style="border-style: solid; padding: 5px;">
+                    <h4 class="mb-3">Information about Job</h4>
+                    <form>
+                        <div class="mb-12">
+                            <label for="title1" class="form-label">Title</label>
+                            <input type="text" class="form-control" id="title" aria-describedby="emailHelp">
+                        </div>
+                        <br>
+                        <div class="form-floating">
+                            <textarea class="form-control" placeholder="Leave a comment here" id="content"
+                                style="height: 100px"></textarea>
+                            <label for="floatingTextarea2">Content for your work</label>
+                        </div>
+                        <br>
+                        <div class="row gy-3">
+                            <div class="col-md-6">
+                                <label for="reward" class="form-label">Reward("Ether")</label>
+                                <input type="text" class="form-control" id="reward" placeholder="" required="">
+                                <small class="text-muted">Reward to give Accepter</small>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label for="dontdisturb" class="form-label">Dontdisturb("Ether")</label>
+                                <input type="text" class="form-control" id="dontdisturb" placeholder="" required="">
+                                <small class="text-muted">Accepter have least of This</small>
+                            </div>
+                        </div>
+                        <br>
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                            <button id="btn-publish" class="btn btn-primary" type="button">Make!</button>
+                        </div>
+                    </form>
                 </div>
             </div>
         </div>
+        <br>
+        <br>
+        <br>
+        <br>
     </div>
-
-    <button id="btn-publish">publish</button>
 
     <!-- Include JS files -->
     <script src="src/index.js"></script>
@@ -55,7 +102,7 @@
         $(function () {
             $(window).on("load", function () {
                 console.log("Window 로드 완료")
-                app.init();
+                app.init(renderAllJob, 8);
             });
         });
 
@@ -69,9 +116,8 @@
             let job = await app.publishJob(title, jobContent, dontdisturb, deadline, reward);
         });
 
-        async function renderAllJob(pageId = -1, perPage = 10) {
-            let jobList = await app.allJob(pageId, perPage);
-            console.log(jobList);
+        function renderAllJob(jobList) {
+            console.log("renderAllJob", jobList);
             for (let i = 0; i < jobList.length; i++) {
                 document.getElementById("result").append(jobList[i]);
             }
