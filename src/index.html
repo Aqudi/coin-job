@@ -38,6 +38,9 @@
                         <tbody id="result">
                         </tbody>
                     </table>
+                    <button id="pageDown"><</button>
+                    <span id="pageId"></span>
+                    <button id="pageUp">></button>
                     <hr />
                     <p id="accountAddress" class="text-center"></p>
                 </div>
@@ -51,12 +54,29 @@
     <script src="src/index.js"></script>
     <script>
         const app = App.default;
-
-        $(function () {
+        var pagenum = 1;
+        var viewperpage = 8;
+        // $(function () {
             $(window).on("load", function () {
                 console.log("Window 로드 완료")
                 app.init();
             });
+        // });
+
+        document.getElementById("pageUp").addEventListener("click", function(){
+            if (document.getElementById("result").rows.length != 0) {
+                pagenum += 1;
+                $("#pageId").html(pagenum);
+                renderAllJob(pagenum,viewperpage);
+            }
+        });
+
+        document.getElementById("pageDown").addEventListener("click", function(){
+            if(pagenum > 1){
+                pagenum -= 1;
+                $("#pageId").html(pagenum);
+                renderAllJob(pagenum,viewperpage);
+            }
         });
 
         document.getElementById("btn-publish").addEventListener("click", async function () {
@@ -65,13 +85,27 @@
             const dontdisturb = web3.utils.toWei("1", "ether");
             const deadline = Date.now();
             let job = await app.publishJob(title, contet, dontdisturb, deadline);
+            renderAllJob(pagenum,viewperpage);
         });
 
         async function renderAllJob(pageId = -1, perPage = 10) {
             let jobList = await app.allJob(pageId, perPage);
             console.log(jobList);
+            $("#result").empty();
             for (let i = 0; i < jobList.length; i++) {
-                document.getElementById("result").append(jobList[i]);
+                let job = jobList[i];
+                $("#result").append("<tr>");
+                // document.getElementById("result").rows[i].append(jobList[i]);
+                // $("#result").append("</tr>");
+                $('#result tr:last').append("<td>"+job['id']+'</td>');
+                $('#result tr:last').append("<td>"+job['title']+'</td>');
+                $('#result tr:last').append("<td>"+job['content']+'</td>');
+                let date = new Date(Number(job['deadline']));
+                $('#result tr:last').append("<td>"+date.toLocaleString()+'</td>');
+                $('#result tr:last').append("<td>"+web3.utils.fromWei(job['reward'])+' Ether</td>');
+                $('#result tr:last').append("<td>"+web3.utils.fromWei(job['dontdisturb'])+' Ether</td>');
+                $('#result tr:last').append("<td>"+job['accepted']+'</td>');
+                $('#result tr:last').append('</tr>');
             }
         }
     </script>
