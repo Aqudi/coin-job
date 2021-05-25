@@ -118,7 +118,7 @@
     <script>
         const app = App.default;
         var pagenum = 1;
-        var viewperpage = 8;
+        var viewperpage = 5;
         // $(function () {
         $(window).on("load", function () {
             console.log("Window 로드 완료")
@@ -166,7 +166,7 @@
                     app.finishJob(idx);
                     break;
                 case "accept":
-                    app.acceptJob(idx,"contact me");
+                    app.acceptJob(idx,"contact me",1);
                     break;
             }
         }
@@ -215,6 +215,9 @@
                         else if(my_position == 0 && !accepted){
                             name="accept";
                         }
+                        else{
+                            name="none";
+                        }
                     }
                     else if(stat == 2){
                         if(my_position == 1){
@@ -224,7 +227,9 @@
                             name="finish";
                         }
                     }
-                    $('#result tr:last').append('<Button onclick="onJobBtn(this)" idx="'+job['id']+'" id="jobbtn" name="'+job['id']+","+name+'"'+">"+name+'</Button>');
+                    if(name != "none"){
+                        $('#result tr:last').append('<Button onclick="onJobBtn(this)" idx="'+job['id']+'" id="jobbtn" name="'+job['id']+","+name+'"'+">"+name+'</Button>');
+                    }
                 }
                 $('#result tr:last').append('</tr>');
             }

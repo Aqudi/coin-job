@@ -15,7 +15,7 @@ const App = {
     contracts: {},
     account: '0x0',
     renderAllJob: null,
-    perPage: 10,
+    perPage: 5,
 
     init: function (renderCallback, perPage) {
         console.log("Init app")
