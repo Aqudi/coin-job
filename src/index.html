@@ -81,7 +81,7 @@
                         </div>
                         <br>
                         <div class="form-floating">
-                            <textarea class="form-control" placeholder="Leave a comment here" id="content"
+                            <textarea class="form-control" placeholder="Leave a comment here" id="contenttext"
                                 style="height: 100px"></textarea>
                             <label for="floatingTextarea2">Content for your work</label>
                         </div>
@@ -144,7 +144,7 @@
 
         document.getElementById("btn-publish").addEventListener("click", async function () {
             const title = $("input#title").val();
-            const jobContent = $("#content").val();
+            const jobContent = $("#contenttext").val();
             const dontdisturb = web3.utils.toWei($("#dontdisturb").val(), "ether");
             const deadline = Date.now();
             const reward = Number($("#reward").val())
