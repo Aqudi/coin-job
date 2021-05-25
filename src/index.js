@@ -134,25 +134,33 @@ const App = {
         }).catch(App.noticeError);
     },
 
-    acceptJob: function (number, contact, fee) {
+    acceptJob: function (number, contact) {
         console.log("Function acceptJob")
         let CoinjobInstance;
 
         App._loading();
+        let fee;
+        
+        App.allJob(number, 1).then((jobList) => {
+            console.log(jobList)
+            console.log()
+            fee = jobList[0]["dontdisturb"];
+            
 
-        return App.contracts.Coinjob.deployed().then(async function (instance) {
-            CoinjobInstance = instance;
-            return CoinjobInstance.acceptJob(number, contact,
-                {
-                    from: App.account,
-                    value: web3.utils.toWei(String(fee), "ether")
-                }
-            );
-        }).then(function (job) {
-            console.log("Job", job);
-            App._loaded();
-            return job;
-        }).catch(App.noticeError);
+            return App.contracts.Coinjob.deployed().then(async function (instance) {
+                CoinjobInstance = instance;
+                return CoinjobInstance.acceptJob(number, contact,
+                    {
+                        from: App.account,
+                        value: fee
+                    }
+                );
+            }).then(function (job) {
+                console.log("Job", job);
+                App._loaded();
+                return job;
+            }).catch(App.noticeError);
+        });
     },
 
     workDone: function (number) {
