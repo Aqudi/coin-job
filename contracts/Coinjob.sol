@@ -158,7 +158,12 @@ contract Coinjob {
             _thisjob.stat != status.finish,
             "This Job is Done. Job Good Job Bad Job"
         );
-        _thisjob.stat = status.workerDone;
+        if (_thisjob.stat == status.open) {
+            _thisjob.stat = status.workerDone;
+        }
+        else{
+            _thisjob.stat = status.open;
+        }
         emit jobRefresh();
     }
 

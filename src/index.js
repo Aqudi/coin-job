@@ -109,19 +109,91 @@ const App = {
     },
 
     acceptJob: function (_number, _contact) {
+        console.log("Function acceptJob");
+        let CoinjobInstance;
 
+        App._loading();
+
+        return App.contracts.Coinjob.deployed().then(async function (instance) {
+            CoinjobInstance = instance;
+            return CoinjobInstance.acceptJob(_number,{
+                from: App.account});
+        }).then(function (job) {
+            console.log("Job", job);
+            App._loaded();
+            renderAllJob(pagenum,viewperpage);
+            return job;
+        }).catch(function (error) {
+            console.error(error);
+            throw error;
+        });
     },
 
     workDone: function (_number) {
 
+        console.log("Function workDone");
+        let CoinjobInstance;
+
+        App._loading();
+
+        return App.contracts.Coinjob.deployed().then(async function (instance) {
+            CoinjobInstance = instance;
+            return CoinjobInstance.workDone(_number,{
+                from: App.account});
+        }).then(function (job) {
+            console.log("Job", job);
+            App._loaded();
+            renderAllJob(pagenum,viewperpage);
+            return job;
+        }).catch(function (error) {
+            console.error(error);
+            throw error;
+        });
     },
 
     finishJob: function (_number) {
 
+        console.log("Function finishJob");
+        let CoinjobInstance;
+
+        App._loading();
+
+        return App.contracts.Coinjob.deployed().then(async function (instance) {
+            CoinjobInstance = instance;
+            return CoinjobInstance.finishJob(_number,{
+                from: App.account});
+        }).then(function (job) {
+            console.log("Job", job);
+            App._loaded();
+            renderAllJob(pagenum,viewperpage);
+            return job;
+        }).catch(function (error) {
+            console.error(error);
+            throw error;
+        });
     },
 
     giveupJob: function (_number) {
 
+        console.log("Function giveupJob");
+        let CoinjobInstance;
+
+        App._loading();
+
+        return App.contracts.Coinjob.deployed().then(async function (instance) {
+            CoinjobInstance = instance;
+            return CoinjobInstance.giveupJob(_number,{
+                from: App.account}
+            );
+        }).then(function (job) {
+            console.log("Job", job);
+            App._loaded();
+            renderAllJob(pagenum,viewperpage);
+            return job;
+        }).catch(function (error) {
+            console.error(error);
+            throw error;
+        });
     },
 
 
