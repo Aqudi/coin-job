@@ -81,7 +81,7 @@ const App = {
         });
     },
 
-    publishJob: function (title, contet, dontdisturb, deadline) {
+    publishJob: function (title, contet, dontdisturb, deadline, reward = "0.5") {
         console.log("Function publishJob")
         let CoinjobInstance;
 
@@ -92,7 +92,7 @@ const App = {
             return CoinjobInstance.publishJob(title, contet, dontdisturb, deadline,
                 {
                     from: App.account,
-                    value: web3.utils.toWei("0.5", "ether")
+                    value: web3.utils.toWei(String(reward), "ether")
                 }
             );
         }).then(function (job) {

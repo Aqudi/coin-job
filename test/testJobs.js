@@ -27,8 +27,8 @@ contract('Coinjob', function (accounts) {
         });
     });
 
-    const publishCount = Math.ceil(Math.random() * 100 % 10);
-    const perPage = 10;
+    const publishCount = Math.ceil(Math.random() * 100 % 15);
+    const perPage = 5;
 
     it("Job publish 테스트", function () { // 무슨 테스트 할건지 : it
 
@@ -58,9 +58,10 @@ contract('Coinjob', function (accounts) {
             return coinjobInstance.getPaginatedSquares(1, perPage);
         }).then(function (jobList) {
             assert.equal(jobList.length, perPage);
-            return coinjobInstance.getPaginatedSquares(2, perPage);
+            const lastPage = Math.floor(publishCount / perPage) + 1;
+            return coinjobInstance.getPaginatedSquares(lastPage, perPage);
         }).then(function (jobList) {
-            assert.equal(jobList.length, publishCount - perPage);
+            assert.equal(jobList.length, publishCount % perPage);
         });
     });
 });
