@@ -38,12 +38,20 @@ Job 생성에 필요한 정보들
 - 기타 개발에 필요한 패키지들
   - `npm i -D`
 
+### Test
+
+- `npm run test`
+
 ### 실행
 
 #### Ganache 실행
 
 - `npm run ganache`
 - MetaMask에 Privae key를 이용해 계정 등록
+
+#### Contract 배포
+
+- `npm run deploy`
 
 #### DAPP 실행
 
