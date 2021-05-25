@@ -163,7 +163,8 @@ const App = {
 
         return App.contracts.Coinjob.deployed().then(async function (instance) {
             CoinjobInstance = instance;
-            return CoinjobInstance.workDone(number);
+            return CoinjobInstance.workDone(number,{
+                from: App.account});
         }).catch(App.noticeError);
     },
 
@@ -175,7 +176,8 @@ const App = {
 
         return App.contracts.Coinjob.deployed().then(async function (instance) {
             CoinjobInstance = instance;
-            return CoinjobInstance.finishJob(number, contact);
+            return CoinjobInstance.finishJob(number,{
+                from: App.account});
         }).catch(App.noticeError);
     },
   
