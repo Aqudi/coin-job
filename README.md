@@ -31,9 +31,9 @@ Job 생성에 필요한 정보들
 ### 패키지 설치
 
 - Ganache
-  - windows의 경우에는 windows build tool이 필요하다.
   - `npm i -g ganache-cli`
 - Truffle
+  - windows의 경우에는 windows build tool이 필요하다.
   - `npm i -g truffle`
 - 기타 개발에 필요한 패키지들
   - `npm i -D`
