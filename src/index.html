@@ -61,10 +61,12 @@
 
         document.getElementById("btn-publish").addEventListener("click", async function () {
             const title = "Hello";
-            const contet = "I want you.";
+            const jobContent = "I want you.";
             const dontdisturb = web3.utils.toWei("1", "ether");
             const deadline = Date.now();
-            let job = await app.publishJob(title, contet, dontdisturb, deadline);
+            const reward = Math.random() * 100 % 2 + 0.5
+            console.log("Publish job", title, jobContent, dontdisturb, deadline, reward);
+            let job = await app.publishJob(title, jobContent, dontdisturb, deadline, reward);
         });
 
         async function renderAllJob(pageId = -1, perPage = 10) {
