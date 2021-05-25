@@ -80,6 +80,8 @@ const App = {
                 $("#accountAddress").html("Your Account: " + App.account);
             }
             App._loaded();
+            $("#pageId").html(pagenum);
+            renderAllJob(pagenum,viewperpage);
         });
     },
 
@@ -127,6 +129,7 @@ const App = {
         }).then(function (job) {
             console.log("Job", job);
             App._loaded();
+            renderAllJob(pagenum,viewperpage);
             return job;
         }).catch(App.noticeError);
     },
