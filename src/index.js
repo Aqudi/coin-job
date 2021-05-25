@@ -178,9 +178,28 @@ const App = {
             return CoinjobInstance.finishJob(number, contact);
         }).catch(App.noticeError);
     },
-
+  
     giveupJob: function (_number) {
-        console.error("Not implemented.");
+
+        console.log("Function giveupJob");
+        let CoinjobInstance;
+
+        App._loading();
+
+        return App.contracts.Coinjob.deployed().then(async function (instance) {
+            CoinjobInstance = instance;
+            return CoinjobInstance.giveupJob(_number,{
+                from: App.account}
+            );
+        }).then(function (job) {
+            console.log("Job", job);
+            App._loaded();
+            renderAllJob(pagenum,viewperpage);
+            return job;
+        }).catch(function (error) {
+            console.error(error);
+            throw error;
+        });
     },
 
 

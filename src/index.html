@@ -39,6 +39,8 @@
                                 <th scope="col">Reward</th>
                                 <th scope="col">Dontdisturb</th>
                                 <th scope="col">Accepted</th>
+                                <th scope="col">Finished</th>
+                                <th scope="col">Button</th>
                             </tr>
                         </thead>
                         <tbody id="result">
@@ -150,23 +152,80 @@
             let job = await app.publishJob(title, jobContent, dontdisturb, deadline, reward);
         });
 
+        function onJobBtn(btn){
+            let idx = btn.name.split(",")[0];
+            let name = btn.name.split(",")[1];
+            switch(name){
+                case "giveup":
+                    app.giveupJob(idx);
+                    break;
+                case "workDone":
+                    app.workDone(idx);
+                    break;
+                case "finish":
+                    app.finishJob(idx);
+                    break;
+                case "accept":
+                    app.acceptJob(idx,"contact me");
+                    break;
+            }
+        }
+
         async function renderAllJob(pageId = -1, perPage = 10) {
             let jobList = await app.allJob(pageId, perPage);
             console.log("renderAllJob", jobList);
             $("#result").empty();
             for (let i = 0; i < jobList.length; i++) {
                 let job = jobList[i];
-                $("#result").append("<tr>");
-                // document.getElementById("result").rows[i].append(jobList[i]);
-                // $("#result").append("</tr>");
-                $('#result tr:last').append("<td>" + job['id'] + '</td>');
-                $('#result tr:last').append("<td>" + job['title'] + '</td>');
-                $('#result tr:last').append("<td>" + job['content'] + '</td>');
+                let publisher = job['writer'].toLowerCase();
+                let accepter = job['accepter'].toLowerCase();
+                let accepted = job['accepted'];
+                let stat = Number(job['stat']); // open finish workerdone
+                let style = "";
+                let my_position = 0; // 상관없음 수락한사람 글올린사람
+                if(accepter == app.account){
+                    style = 'style="border-color:green; border-width:5px"';
+                    my_position = 1;
+                }
+                if(publisher == app.account){
+                    style = 'style="border-color:blue; border-width:5px"';
+                    my_position = 2;
+                }
+                $("#result").append("<tr "+style+">");
+                $('#result tr:last').append("<td>"+job['id']+'</td>');
+                $('#result tr:last').append("<td>"+job['title']+'</td>');
+                $('#result tr:last').append("<td>"+job['content']+'</td>');
                 let date = new Date(Number(job['deadline']));
-                $('#result tr:last').append("<td>" + date.toLocaleString() + '</td>');
-                $('#result tr:last').append("<td>" + web3.utils.fromWei(job['reward']) + ' Ether</td>');
-                $('#result tr:last').append("<td>" + web3.utils.fromWei(job['dontdisturb']) + ' Ether</td>');
-                $('#result tr:last').append("<td>" + job['accepted'] + '</td>');
+                $('#result tr:last').append("<td>"+date.toLocaleString()+'</td>');
+                $('#result tr:last').append("<td>"+web3.utils.fromWei(job['reward'])+' Ether</td>');
+                $('#result tr:last').append("<td>"+web3.utils.fromWei(job['dontdisturb'])+' Ether</td>');
+                $('#result tr:last').append("<td>"+accepted+'</td>');
+                $('#result tr:last').append("<td>"+stat+'</td>');
+                if(stat != 1){
+                    let name = "";
+                    if(stat == 0){
+                        if(my_position == 2){
+                            name="giveup";
+                        }
+                        else if(my_position == 1){
+                            name = "workDone";
+                            $('#result tr:last').append('<Button onclick="onJobBtn(this)" idx="'+job['id']+'" id="jobbtn" name="'+job['id']+","+name+'"'+">"+name+'</Button>');
+                            name = "giveup"
+                        }
+                        else if(my_position == 0 && !accepted){
+                            name="accept";
+                        }
+                    }
+                    else if(stat == 2){
+                        if(my_position == 1){
+                            name="workDone";
+                        }
+                        else if(my_position == 2){
+                            name="finish";
+                        }
+                    }
+                    $('#result tr:last').append('<Button onclick="onJobBtn(this)" idx="'+job['id']+'" id="jobbtn" name="'+job['id']+","+name+'"'+">"+name+'</Button>');
+                }
                 $('#result tr:last').append('</tr>');
             }
         }
