@@ -68,14 +68,16 @@ const App = {
             if (page !== -1 || !perPage) {
                 return CoinjobInstance.getPaginatedSquares(page, perPage);
             }
-            console.log(`page: ${page}, perPage: ${perPage} 모든 Job을 가져옵니다.`);
+            console.warn(`모든 Job을 가져옵니다.`);
+            console.warn(`페이지네이션을 위해서는 page 번호와, page 당 글 개수를 지정해주세요.`);
             return CoinjobInstance.allJob();
         }).then(function (jobList) {
-            console.log(jobList);
+            console.log("Job list", jobList);
             App._loaded();
             return jobList;
         }).catch(function (error) {
-            console.error(error.toString());
+            console.error(error);
+            throw error;
         });
     },
 
@@ -87,20 +89,19 @@ const App = {
 
         return App.contracts.Coinjob.deployed().then(async function (instance) {
             CoinjobInstance = instance;
-            console.log(title, content, dontdisturb, deadline);
-            const account = (await web3.eth.getAccounts())[0];
             return CoinjobInstance.publishJob(title, contet, dontdisturb, deadline,
                 {
-                    from: account,
+                    from: App.account,
                     value: web3.utils.toWei("0.5", "ether")
                 }
             );
         }).then(function (job) {
-            console.log(job);
+            console.log("Job", job);
             App._loaded();
             return job;
         }).catch(function (error) {
             console.error(error);
+            throw error;
         });
     },
 
